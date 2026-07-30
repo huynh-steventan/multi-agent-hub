@@ -1,0 +1,40 @@
+{
+  "name": "multi-agent-hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Mobile-first web GUI driving the claude, kimi and qwen CLIs over Tailscale",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,web -c cyan,magenta \"npm:dev:server\" \"npm:dev:web\"",
+    "dev:server": "tsx watch server/src/index.ts",
+    "dev:web": "vite --config web/vite.config.ts",
+    "build": "npm run build:web",
+    "build:web": "vite build --config web/vite.config.ts",
+    "deploy": "bash scripts/deploy.sh",
+    "start": "tsx server/src/index.ts",
+    "typecheck": "tsc -p tsconfig.server.json --noEmit && tsc -p web/tsconfig.json --noEmit",
+    "test": "node --test --experimental-strip-types \"server/src/**/*.test.ts\" \"web/src/**/*.test.ts\""
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/ws": "^8.5.13",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  }
+}

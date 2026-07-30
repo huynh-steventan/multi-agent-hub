@@ -1,0 +1,20 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+web/dist/
+node_modules/
+
+# Session registry, event logs, hub state — machine-local, not source
+.data/
+
+# Prompt attachments, when the hub is pointed at its own repo
+.multi-agent-hub/
+
+# Per-machine editor / agent settings
+.claude/settings.local.json
+
+# OS noise
+.DS_Store

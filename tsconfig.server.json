@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "verbatimModuleSyntax": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    // Node's --experimental-strip-types runs the .ts sources directly and
+    // requires imports to carry the real .ts extension.
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "include": ["server/src/**/*.ts", "shared/**/*.ts"]
+}

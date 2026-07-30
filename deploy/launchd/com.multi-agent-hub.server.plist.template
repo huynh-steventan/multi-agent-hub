@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- multi-agent-hub server — the web GUI for the claude / kimi / qwen CLIs.
+
+     This is a TEMPLATE. `deploy/install.sh` substitutes the __PLACEHOLDERS__ below
+     and writes the result to ~/Library/LaunchAgents/. Do not install this file
+     directly; the placeholders are not valid launchd values.
+
+     The service listens on 127.0.0.1:__PORT__ and is published to your tailnet by
+     `tailscale serve` on its own HTTPS port rather than the default :443. Taking
+     :443 is a trap on any node that already serves something else — and a hub
+     published on two ports is how you update one and keep testing the other.
+
+     PATH matters more than usual here: the server SPAWNS the agent CLIs, and they
+     do not all live in the same place (a typical install has claude in
+     ~/.local/bin, kimi in ~/.kimi-code/bin, and qwen under Homebrew). launchd does
+     not source a shell profile, so anything missing from PATH below does not fail
+     at install time — it fails at turn time, on the agent whose binary is missing.
+     install.sh seeds this from the PATH of the shell you run it in.
+
+     ANTHROPIC_API_KEY is deliberately absent. Setting it would move Claude turns
+     off subscription OAuth and onto metered API billing. No secrets belong in this
+     file at all; everything else is read from the repo's gitignored .env. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.multi-agent-hub.server</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__NPM__</string>
+    <string>start</string>
+  </array>
+  <key>WorkingDirectory</key><string>__REPO__</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>NODE_ENV</key><string>production</string>
+    <key>PORT</key><string>__PORT__</string>
+    <key>HOME</key><string>__HOME__</string>
+    <key>PATH</key><string>__PATH__</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key><false/>
+  </dict>
+  <key>ThrottleInterval</key><integer>10</integer>
+  <key>StandardOutPath</key><string>__LOG__</string>
+  <key>StandardErrorPath</key><string>__LOG__</string>
+</dict>
+</plist>
