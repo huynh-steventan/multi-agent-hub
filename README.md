@@ -143,6 +143,10 @@ Three things the CLIs disagree about, which shaped the design more than anything
   confines its file tools to the workspace root and has no `--add-dir` to widen it. Storing them
   anywhere else would make a third of the agents unable to read their own attachments.
 
+[`docs/ADAPTERS.md`](docs/ADAPTERS.md) documents the adapter interface, the full dialect table, and
+what it takes to add a fourth CLI. [`docs/DECISIONS.md`](docs/DECISIONS.md) records why each of these
+tradeoffs was made, and what was rejected.
+
 ## Configuration
 
 Everything is environment variables with working defaults; see
