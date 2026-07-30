@@ -7,7 +7,11 @@ It runs on your machine and drives the CLIs you already have installed, authenti
 shells out to each CLI, so every turn spends your existing subscription or plan. No API keys, no
 second login, no cloud service in the middle.
 
-<!-- DEMO GIF GOES HERE — see docs/DEMO.md -->
+<p align="center">
+  <img src="docs/demo.gif" width="390" alt="Starting a session from a phone: picking an agent and repo, sending a prompt, and watching the turn stream back with collapsible tool calls.">
+</p>
+
+<p align="center"><em>Real turns against a real repo, driven from a phone over a private tailnet.</em></p>
 
 ## Why
 

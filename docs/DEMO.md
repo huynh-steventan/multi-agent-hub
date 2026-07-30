@@ -32,8 +32,40 @@ capture looks like every other web app.
   An `.mp4` uploaded directly into the README via the GitHub web editor is also fine and usually
   looks better; GitHub renders it inline with controls.
 
+## Record from the home-screen icon, not from Safari
+
+Add to Home Screen first, then record by launching from that icon. The page declares the iOS
+web-app meta tags, so it opens with **no browser chrome at all**.
+
+This is not cosmetic. Recording in Safari puts your host name on screen in two places, and only one
+of them can be cropped:
+
+1. The address bar at the bottom of every frame — croppable.
+2. A small URL hint centered directly above the keyboard, visible whenever the keyboard is up —
+   **not** croppable, because it sits in the middle of the frame. Worse, it slides in and out with
+   the keyboard, so masking it means tracking a moving target across the transition.
+
+The shipped GIF was recorded in Safari and needed exactly that: a `delogo` patch over the hint's
+resting position while the keyboard is settled, plus a `boxblur` band covering its full travel
+during the ~0.5s slide animations. It works, but it is about twenty minutes of frame-by-frame
+verification that launching from the home screen avoids entirely.
+
+Point `REPO_ROOTS` at a directory with no username in its path — `/Users/Shared/...` rather than
+your home directory. Then no path the picker displays, and none the agent prints when it runs `pwd`,
+can leak the identifier. Do this instead of trying to avoid prompts that make agents print paths;
+removing the string beats remembering not to say it.
+
 ## Then
 
-Replace the `<!-- DEMO GIF GOES HERE -->` comment near the top of the README with the embed, and
-confirm what the GIF shows still matches what the README claims. A demo that contradicts the feature
-list is worse than no demo.
+Put the GIF at `docs/demo.gif` and embed it near the top of the README. Confirm what it shows still
+matches what the README claims — a demo that contradicts the feature list is worse than no demo.
+
+Before publishing, sweep the finished file rather than spot-checking it:
+
+```sh
+# every 0.2s through a suspect stretch, tiled into one contact sheet
+for t in $(seq 6 0.2 12); do
+  ffmpeg -v error -ss "$t" -i docs/demo.gif -frames:v 1 -vf "scale=190:-1" "/tmp/f/$t.png" -y
+done
+ffmpeg -v error -pattern_type glob -i '/tmp/f/*.png' -vf tile=10x3 -frames:v 1 /tmp/sheet.png -y
+```
