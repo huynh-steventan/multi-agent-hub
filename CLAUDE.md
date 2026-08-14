@@ -63,8 +63,17 @@ upgraded. The full dialect table and the qwen tool-registry measurements live in
   write end-to-end with a **stub `kimi` first on `PATH`** — the store write lives in `startTurn`,
   which is not importable, so no unit test can reach it.
 - **Usage sources, one per agent** — the hardest-won part of this project:
-  - **claude** — `~/.claude/usage-cache.json`, already exact. No API call, no auth. Caveat: Claude
-    Code only refreshes it *while a session runs*, so it goes stale when idle.
+  - **claude** — `~/.claude.json` → `cachedUsageUtilization`, already exact. No API call, no auth.
+    *Superseded (2026-08-14): this used to read a dedicated `~/.claude/usage-cache.json`. As of CLI
+    2.1.232 that file is no longer written at all — confirmed by probing the installed binary, which
+    now folds this into the general config file instead. The refresh mechanism is unchanged in
+    spirit: every session start fires a near-zero-cost `source: "quota_check"` API call (not a real
+    turn) that reads it off the `anthropic-ratelimit-unified-*` response headers, throttled by an
+    internal cooldown. Since every hub turn is itself a session start, this stays fresh for free —
+    there is nothing extra to trigger. Caveat unchanged: it only refreshes *while a session runs*, so
+    it goes stale when idle. The per-model weekly-cap parsing (`kind: 'weekly_scoped'`) is carried
+    over from the old format and unverified against the new one — no account observed here has a
+    per-model cap to confirm the shape still matches.*
   - **kimi** — an authenticated usage endpoint, bearer token read from the CLI's own credentials
     file. **The `User-Agent` MUST identify as a Kimi coding agent**; a generic UA returns
     `access_terminated_error`, which looks like an auth failure and is not. **Access tokens live only

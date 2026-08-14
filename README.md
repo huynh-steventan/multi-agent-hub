@@ -101,7 +101,7 @@ The usage collectors touch credentials, and it is worth knowing which:
 
 | agent | what it reads | what it writes |
 |---|---|---|
-| claude | `~/.claude/usage-cache.json` | nothing |
+| claude | `~/.claude.json` (`cachedUsageUtilization`) | nothing |
 | kimi | the Kimi CLI's OAuth token, and Kimi's usage API | **rewrites the CLI's credentials file** on token refresh |
 | qwen | a browser session cookie you supply, or a local token ledger | nothing |
 
