@@ -643,6 +643,12 @@ button.session-title {
   outline-offset: -4px;
 }
 
+.token-usage {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+
 .composer-row {
   display: flex;
   gap: 8px;
