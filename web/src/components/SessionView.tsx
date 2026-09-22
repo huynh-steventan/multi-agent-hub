@@ -537,8 +537,7 @@ function repoName(path: string): string {
  * reported usage yet.
  *
  * Taken from the *last* turn_end only, not summed across turns: each turn's
- * `inputTokens` + `cachedTokens` is the entire prior conversation the model
- * was handed (fresh-read plus cache-read halves of the same context), and
+ * `inputTokens` is the prior conversation the model was handed and
  * `outputTokens` is the reply just appended to it — together, everything
  * that will be resent next turn. Summing that across turns would compound
  * toward context-size × turn-count rather than reflect what is actually in
@@ -550,8 +549,8 @@ function repoName(path: string): string {
 function currentContextTokens(events: AgentEvent[]): number | null {
   for (const e of [...events].reverse()) {
     if (e.body.kind !== 'turn_end' || !e.body.usage) continue;
-    const { totalTokens, inputTokens, cachedTokens, outputTokens } = e.body.usage;
-    const parts = [inputTokens, cachedTokens, outputTokens].filter((n): n is number => n !== null);
+    const { totalTokens, inputTokens, outputTokens } = e.body.usage;
+    const parts = [inputTokens, outputTokens].filter((n): n is number => n !== null);
     const turnTotal = totalTokens ?? (parts.length > 0 ? parts.reduce((a, b) => a + b, 0) : null);
     if (turnTotal !== null) return turnTotal;
   }
