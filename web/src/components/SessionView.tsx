@@ -198,7 +198,7 @@ export function SessionView({
   // Null rather than 0 when no turn has reported usage yet (a fresh session,
   // or an agent — kimi — that never sends token counts at all): a 0 would read
   // as "this session used nothing" instead of "nothing to report".
-  const tokenTotal = useMemo(() => sessionTokenTotal(events), [events]);
+  const contextTokens = useMemo(() => currentContextTokens(events), [events]);
 
   return (
     <div className="pane session-pane">
@@ -364,7 +364,7 @@ export function SessionView({
           </div>
         )}
 
-        {tokenTotal !== null && <div className="token-usage">{formatTokens(tokenTotal)} tokens this session</div>}
+        {contextTokens !== null && <div className="token-usage">{formatTokens(contextTokens)} tokens in context</div>}
 
         <div className="composer-row">
           <input
@@ -532,31 +532,28 @@ function repoName(path: string): string {
 }
 
 /**
- * Sum of every turn's *fresh* token usage reported so far, or null if none has
- * any.
+ * Size of the conversation as the model currently sees it — the same figure
+ * the Claude Code CLI's own token counter tracks — or null if no turn has
+ * reported usage yet.
  *
- * Deliberately excludes `cachedTokens`: claude re-reads nearly the entire
- * prior conversation through the prompt cache on every turn, so summing that
- * field across turns compounds toward context-size × turn-count rather than
- * toward anything the operator typed or the agent wrote — a two-turn session
- * against this repo's own (large) CLAUDE.md measured 1.3M that way, almost
- * all of it repeat cache reads of the same context. `totalTokens` is used
- * where an adapter fills it in directly (qwen, which bills token credits and
- * does not separate cache reads out); otherwise it is input+output (claude
- * never sets `totalTokens`). Kimi's adapter emits no usage at all, so a kimi
- * session correctly shows nothing rather than a fake 0.
+ * Taken from the *last* turn_end only, not summed across turns: each turn's
+ * `inputTokens` + `cachedTokens` is the entire prior conversation the model
+ * was handed (fresh-read plus cache-read halves of the same context), and
+ * `outputTokens` is the reply just appended to it — together, everything
+ * that will be resent next turn. Summing that across turns would compound
+ * toward context-size × turn-count rather than reflect what is actually in
+ * context right now. `totalTokens` is used where an adapter fills it in
+ * directly (qwen, which bills token credits and does not separate cache
+ * reads out). Kimi's adapter emits no usage at all, so a kimi session
+ * correctly shows nothing rather than a fake 0.
  */
-function sessionTokenTotal(events: AgentEvent[]): number | null {
-  let total = 0;
-  let any = false;
-  for (const e of events) {
+function currentContextTokens(events: AgentEvent[]): number | null {
+  for (const e of [...events].reverse()) {
     if (e.body.kind !== 'turn_end' || !e.body.usage) continue;
-    const { totalTokens, inputTokens, outputTokens } = e.body.usage;
-    const parts = [inputTokens, outputTokens].filter((n): n is number => n !== null);
+    const { totalTokens, inputTokens, cachedTokens, outputTokens } = e.body.usage;
+    const parts = [inputTokens, cachedTokens, outputTokens].filter((n): n is number => n !== null);
     const turnTotal = totalTokens ?? (parts.length > 0 ? parts.reduce((a, b) => a + b, 0) : null);
-    if (turnTotal === null) continue;
-    total += turnTotal;
-    any = true;
+    if (turnTotal !== null) return turnTotal;
   }
-  return any ? total : null;
+  return null;
 }
